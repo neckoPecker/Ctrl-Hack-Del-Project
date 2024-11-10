@@ -2,9 +2,14 @@ import mimetypes
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
 import joblib
+from pyhigh import get_elevation
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
+import requests
+
 
 inflowmodel = joblib.load('../inflowdata.pkl')
-outflow = joblib.load('../outflowmodel.pkl')
+outflowmodel = joblib.load('../outflowmodel.pkl')
 
 api = Flask(__name__, template_folder='../dist/',
             static_folder="../dist/assets/")
@@ -39,3 +44,40 @@ def get_input_rate_prediction():
     }
     print(toret)
     return response_body
+
+@api.route('/api/output_rate_product')
+@cross_origin()
+def get_output_rate_prediction():
+    # requires:
+    # - user long
+    # - user lat
+    # - inflowdata
+    lat=float(request.args.get('lat')) 
+    lon=-float(request.args.get('lon')) 
+    inflow = float(request.args.get('inflow')) * 1000
+    url = f"https://api.opentopodata.org/v1/aster30m?locations={lat},{lon}"
+    r = requests.get(url)
+    data = r.json() 
+    print(data)
+    elevation = data['results'][0]['elevation']    
+    if elevation:
+        sample_input = pd.DataFrame([[elevation/2, elevation/6, inflow]], 
+                              columns=['upstream_water_level', 'downstream_water_level', 'inflow_rate', 
+                                     ])
+    
+        # Transform the input using polynomial features
+        pf = PolynomialFeatures(degree=2)
+        sample_input_poly = pf.fit_transform(sample_input)
+        print("===========================================")
+        print("===========================================")
+        print(elevation, elevation/3)
+        print(inflow)
+        print(lat, lon)
+        retdata = str(min(outflowmodel.predict(sample_input_poly)[0],72000))
+        print(retdata)
+        print("===========================================")
+        print("===========================================")
+        return retdata
+    return '0'
+
+    
