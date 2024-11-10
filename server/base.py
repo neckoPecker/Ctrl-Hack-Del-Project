@@ -2,11 +2,13 @@ import mimetypes
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
 import joblib
-from pyhigh import get_elevation
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
 import requests
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
+googlekey = os.getenv('GOOGLEMAPS')
 
 inflowmodel = joblib.load('../inflowdata.pkl')
 outflowmodel = joblib.load('../outflowmodel.pkl')
@@ -55,29 +57,27 @@ def get_output_rate_prediction():
     lat=float(request.args.get('lat')) 
     lon=-float(request.args.get('lon')) 
     inflow = float(request.args.get('inflow')) * 1000
-    url = f"https://api.opentopodata.org/v1/aster30m?locations={lat},{lon}"
+    response_body = {
+            "value" : 0,
+            "mimetype" : 'application/json'
+    }
+    url = f"https://maps.googleapis.com/maps/api/elevation/json?locations={17}%2C-{88}&key={googlekey}"
     r = requests.get(url)
-    data = r.json() 
-    print(data)
-    elevation = data['results'][0]['elevation']    
+    elevation = r.json()['results'][0]['elevation'] or 0
+    print("==============================")
+    print("==============================")
+    print(elevation)
+    print("==============================")
+    print("==============================")
     if elevation:
-        sample_input = pd.DataFrame([[elevation/2, elevation/6, inflow]], 
+        sample_input = pd.DataFrame([[elevation/2 + 100, elevation/6, inflow]], 
                               columns=['upstream_water_level', 'downstream_water_level', 'inflow_rate', 
                                      ])
-    
         # Transform the input using polynomial features
         pf = PolynomialFeatures(degree=2)
         sample_input_poly = pf.fit_transform(sample_input)
-        print("===========================================")
-        print("===========================================")
-        print(elevation, elevation/3)
-        print(inflow)
-        print(lat, lon)
-        retdata = str(min(outflowmodel.predict(sample_input_poly)[0],72000))
-        print(retdata)
-        print("===========================================")
-        print("===========================================")
-        return retdata
-    return '0'
+        retdata = min(outflowmodel.predict(sample_input_poly)[0]/100000,10)
+        response_body["value"] = retdata,
+    return response_body
 
     

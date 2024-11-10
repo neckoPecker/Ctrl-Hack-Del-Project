@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')).render(
     <div>
       <h1>Dam Data</h1>
       <App />
-      {/* <App2 />   */}
+      {/* <App2 />  */}
     </div>
   </StrictMode>,
 )
