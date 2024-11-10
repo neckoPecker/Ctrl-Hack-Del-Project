@@ -17,7 +17,6 @@ from math import isnan
 import random
 import joblib
 
-
 climatedata = pd.read_csv('climatedata.csv')
 # make data
 xdata = []

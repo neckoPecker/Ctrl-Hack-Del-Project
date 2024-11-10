@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { LineChart } from '@mui/x-charts/LineChart';
 
 function App2() {
-  return (<div className="container"> 
-    <div className="inner-container"> 
+  return (<div class="container"> 
+    <div class="sidebar"> 
       <p>'test'</p>
     </div>
-    <div className="inner-container"> 
+    <div class="data-container"> 
       <p>'test2'</p>
     </div>
   </div>

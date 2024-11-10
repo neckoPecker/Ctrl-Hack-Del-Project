@@ -1,8 +1,10 @@
 import mimetypes
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
+import joblib
 
-
+inflowmodel = joblib.load('../inflowdata.pkl')
+outflow = joblib.load('../outflowmodel.pkl')
 
 api = Flask(__name__, template_folder='../dist/',
             static_folder="../dist/assets/")
@@ -26,8 +28,14 @@ def my_profile():
 @api.route('/api/input_rate_product')
 @cross_origin()
 def get_input_rate_prediction():
+    month = request.args.get('month')
+    day = request.args.get('day')
+    heat = request.args.get('heat')
+    temp = request.args.get('temp')
+    toret = inflowmodel.predict([[month,day,heat,temp]])[0]
     response_body = {
-        "value" : 42069,
+        "value" : toret,
         "mimetype" : 'application/json'
     }
+    print(toret)
     return response_body
