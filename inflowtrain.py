@@ -52,22 +52,23 @@ predicted_rainfall = model.predict(new_data)
 print(f"Predicted rainfall: {predicted_rainfall[0]:.2f} mm")
 
 
-#xdatas = []
-#ydatas = []
-## testing the data
-#for i in range(10000):
-#    randmonth = random.randint(1,12)
-#    randday = random.randint(1,30)
-#    heatingdegree = random.randint(0,31)
-#    randtemp = random.randint(-13, 26)
-#    print("========")
-#    xdata = np.array([randmonth, randday, heatingdegree, randtemp]).reshape(-1, 4)
-#    print(xdata)
-#    ydata =model.predict(xdata)
-#    xdatas.append(xdata)
-#    print(ydata)
-#    ydatas.append(ydata)
+xdatas = []
+ydatas = []
+# testing the data
+for i in range(10000):
+    randmonth = random.randint(1,12)
+    randday = random.randint(1,30)
+    heatingdegree = random.randint(0,31)
+    randtemp = random.randint(-13, 26)
+    print("========")
+    xdata = np.array([randmonth, randday, heatingdegree, randtemp]).reshape(-1, 4)
+    print(xdata)
+    ydata =model.predict(xdata)
+    xdatas.append(xdata)
+    print(ydata)
+    ydatas.append(ydata)
 
+breakpoint()
 joblib.dump(model, 'inflowdata.pkl')
 
 breakpoint()

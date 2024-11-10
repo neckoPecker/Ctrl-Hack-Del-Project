@@ -23,9 +23,24 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // X-Axis: Defines per second
   useEffect(() => {
+    if (count < 5) {
       setXAxisData(xAxisData => [...xAxisData, count]);
-  }, [randNum]);
+    } else {
+      setXAxisData(xAxisData => [count-4, count-3, count-2, count-1, count]);
+    }
+      
+  }, [randNum, inputPrediction]);
+
+  // Y-Axis: Shows off the inflow
+  useEffect(() => {     
+    if (count < 5) {
+      setYAxisData(yAxisData => [...yAxisData, inputPrediction]);  
+    } else {
+      setYAxisData(yAxisData => [yAxisData[1], yAxisData[2], yAxisData[3], yAxisData[4], inputPrediction ]);  
+    }
+  }, [randNum, inputPrediction]);
 
 useEffect(() => {
   const fetchData = async () => {
@@ -49,25 +64,35 @@ useEffect(() => {
   return (
     <div className="App">
       
-      <LineChart
-      skipAnimation={true}
-      xAxis={[{ data: xAxisData }]}
-      series={[
-        {
-          data: xAxisData
-        },
-      ]}
-      width={500}
-      height={300}
-    />
+      
     
-      {/* <p>Test:     {xAxisData}</p> */}
-      <h3>Inflow:        {inputPrediction}</h3>
-      <h3>Month:        {randNum}</h3>
-      <h3>Day:       {randNum}</h3>
-      <h3>Humidity: {randNum}</h3>
-      <h3>Temp: {randNum}</h3>
+      
+      <div class="container"> 
+        <div class="sidebar"> 
+          <h3>Inflow:        {(Math.round(inputPrediction * 100) / 100).toFixed(2)}</h3>
+          <h3>Month:        {(Math.round(randNum * 100) / 100).toFixed(2)}</h3>
+          <h3>Day:       {(Math.round(randNum * 100) / 100).toFixed(2)}</h3>
+          <h3>Humidity: {(Math.round(randNum * 100) / 100).toFixed(2)}</h3>
+          <h3>Temp: {(Math.round(randNum * 100) / 100).toFixed(2)}</h3>
+        </div>
+        <div class="data-container">
+
+          <h4>Inflow vs Time</h4> 
+          <LineChart
+            skipAnimation={true}
+            xAxis={[{ data: xAxisData }]}
+            series={[
+              {
+                data: yAxisData
+              },
+            ]}
+            width={800}
+            height={300}
+          />
+        </div>
+      </div>
     </div>
+    
   )   
 }
 
